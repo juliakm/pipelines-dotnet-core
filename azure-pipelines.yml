@@ -24,10 +24,16 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)' # Update this to match your need
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
     appType: 'webAppLinux'
     WebAppName: 'my-app-dotnet-linux'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    #packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    packageForLinux: $(System.ArtifactsDirectory)/drop/*.zip
