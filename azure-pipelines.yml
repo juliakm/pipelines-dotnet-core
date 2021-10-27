@@ -13,7 +13,6 @@ jobs:
 - job: buildandtest
   pool:
     vmImage: windows-latest # works for ubuntu 
-
   steps:
   - task: DotNetCoreCLI@2
     inputs:
@@ -36,12 +35,12 @@ jobs:
       package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
 - job: deploy
+  dependsOn: buildandtest
   pool: 
     vmImage: ubuntu-latest  
   steps:
-  - task: DownloadBuildArtifacts@0
-    inputs:
-      artifactName: drop
+  - download: current
+    artifact: drop
   - task: AzureWebApp@1
     inputs:
       azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
@@ -49,5 +48,3 @@ jobs:
       appName: 'oct27my-app-dotnet'
       resourceGroupName: 'oct27-myapp-rg'
       package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
-
-
