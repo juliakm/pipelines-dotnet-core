@@ -13,25 +13,29 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-
 - task: DotNetCoreCLI@2
   inputs:
-    command: 'publish'
-    publishWebProjects: true
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
 
-- task: PublishBuildArtifacts@1
+- task: PublishPipelineArtifact@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    targetPath: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'myWebsiteName'
 
-- task: DownloadPipelineArtifact@2
-  inputs:
-    buildType: 'current'
-    artifactName: 'drop'
-    targetPath: '$(Pipeline.Workspace)'
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#     ArtifactName: 'drop'
+#     publishLocation: 'Container'
+
+# - task: DownloadPipelineArtifact@2
+#   inputs:
+#     buildType: 'current'
+#     artifactName: 'drop'
+#     targetPath: '$(Pipeline.Workspace)'
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
