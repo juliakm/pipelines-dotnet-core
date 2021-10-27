@@ -20,6 +20,13 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: true
+
+- task: DownloadBuildArtifacts@1
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'drop'
+    downloadPath: '$(System.DefaultWorkingDirectory)'
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
