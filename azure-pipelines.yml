@@ -25,20 +25,9 @@ steps:
     targetPath: '$(Build.ArtifactStagingDirectory)' 
     artifactName: 'myWebsiteName'
 
-# - task: PublishBuildArtifacts@1
-#   inputs:
-#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-#     ArtifactName: 'drop'
-#     publishLocation: 'Container'
-
-# - task: DownloadPipelineArtifact@2
-#   inputs:
-#     buildType: 'current'
-#     artifactName: 'drop'
-#     targetPath: '$(Pipeline.Workspace)'
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
     appType: 'webAppLinux'
     appName: 'oct27my-app-dotnet'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
