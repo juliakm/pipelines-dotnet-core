@@ -12,7 +12,7 @@ variables:
 jobs:
 - job: buildandtest
   pool:
-    vmImage: windows-latest # works for ubuntu 
+    vmImage: ubuntu-latest
   steps:
   - task: DotNetCoreCLI@2
     inputs:
@@ -38,13 +38,17 @@ jobs:
   dependsOn: buildandtest
   pool: 
     vmImage: ubuntu-latest  
+  
   steps:
-  - download: current
-    artifact: drop
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'current'
+      artifactName: 'drop'
+      targetPath: '$(Pipeline.Workspace)'
   - task: AzureWebApp@1
     inputs:
       azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
       appType: 'webAppLinux'
       appName: 'oct27my-app-dotnet'
       resourceGroupName: 'oct27-myapp-rg'
-      package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+      package: '$(Pipeline.Workspace)/**/*.zip'
