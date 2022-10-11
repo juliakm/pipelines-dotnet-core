@@ -9,9 +9,26 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  buildConfiguration: 'Release'
+jobs:
+- job: 'Test'
+  pool:
+    vmImage: 'ubuntu-latest' # other options: 'macOS-latest', 'windows-latest'
+  strategy:
+    matrix:
+      Python38:
+        python.version: '3.8'
+      Python39:
+        python.version: '3.9'
+      Python310:
+        python.version: '3.10'
 
-steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+# variables:
+#   buildConfiguration: 'Release'
+
+# steps:
+# - script: dotnet build --configuration $(buildConfiguration)
+#   displayName: 'dotnet build $(buildConfiguration)'
