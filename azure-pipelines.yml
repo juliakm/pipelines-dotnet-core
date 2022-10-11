@@ -20,13 +20,11 @@ parameters:
     - prod2
     - prod3
 
-jobs:
- 
+steps:
 - ${{ each resourceId in parameters.resourceIds }}:
-  - ${{ each env in split(parameters.environments, ',')}}:
-    - job: ${{ replace(split(resourceId, '/')[8], '-', '_') }}_${{ env }} 
-      steps:  
-            - script: echo "Output"
+    - script: echo ${{ replace(split(resourceId, '/')[8], '-', '_') }}_
+      # steps:  
+      #       - script: echo "Output"
 
 
 # trigger:
