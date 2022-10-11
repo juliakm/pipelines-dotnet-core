@@ -9,13 +9,11 @@ parameters:
     default:
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-internal
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes
-    - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-deploy
   - name: environments
     type: object
     default: 
     - prod1
     - prod2
-    - prod3
 
 trigger:
 - master
