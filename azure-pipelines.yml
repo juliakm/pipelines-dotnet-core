@@ -14,7 +14,7 @@ parameters:
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-deploy
   - name: environments
-    type: strong
+    type: string
     values: 
     - prod1
     - prod2
