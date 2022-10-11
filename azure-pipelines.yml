@@ -3,22 +3,22 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-trigger:
-- master
-
 parameters:
   - name: resourceIds
     type: object
-    values:
+    default:
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-internal
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-deploy
   - name: environments
     type: object
-    values: 
+    default: 
     - prod1
     - prod2
     - prod3
+
+trigger:
+- master
 
 steps:
 - script: echo "Output"
