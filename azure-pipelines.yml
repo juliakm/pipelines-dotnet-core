@@ -21,13 +21,8 @@ trigger:
 - master
 
 steps:
-- script: echo "Output"
-
-# - ${{ each resourceId in parameters.resourceIds }}:
-#     - script: echo ${{ replace(split(resourceId, '/')[8], '-', '_') }}_
-      # steps:  
-      #       - script: echo "Output"
-
+- ${{ each resourceId in parameters.resourceIds }}:
+    - script: echo ${{ replace(split(resourceId, '/')[8], '-', '_') }}_
 
 # trigger:
 # - master
