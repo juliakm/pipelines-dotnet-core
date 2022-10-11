@@ -6,26 +6,55 @@
 trigger:
 - master
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+  - name: resourceIds
+    type: string
+    values:
+    - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-internal
+    - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes
+    - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-deploy
+  - name: environments
+    type: strong
+    values: 
+    - prod1
+    - prod2
+    - prod3
 
 jobs:
-- job: 'Test'
-  pool:
-    vmImage: 'ubuntu-latest' # other options: 'macOS-latest', 'windows-latest'
-  strategy:
-    matrix:
-      Python38:
-        python.version: '3.8'
-      Python39:
-        python.version: '3.9'
-      Python310:
-        python.version: '3.10'
+ 
+- ${{ each resourceId in parameters.resourceIds }}:
 
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
+  - ${{ each env in split(variables.environments, ',')}}:
+
+    - job: ${{ replace(split(resourceId, '/')[8], '-', '_') }}_${{ env }}
+      
+      steps:  
+            - script: echo "Output"
+
+
+# trigger:
+# - master
+
+# pool:
+#   vmImage: ubuntu-latest
+
+# jobs:
+# - job: 'Test'
+#   pool:
+#     vmImage: 'ubuntu-latest' # other options: 'macOS-latest', 'windows-latest'
+#   strategy:
+#     matrix:
+#       Python38:
+#         python.version: '3.8'
+#       Python39:
+#         python.version: '3.9'
+#       Python310:
+#         python.version: '3.10'
+
+#   steps:
+#   - task: UsePythonVersion@0
+#     inputs:
+#       versionSpec: '$(python.version)'
 # variables:
 #   buildConfiguration: 'Release'
 
