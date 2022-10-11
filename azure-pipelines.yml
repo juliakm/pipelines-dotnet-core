@@ -8,13 +8,13 @@ trigger:
 
 parameters:
   - name: resourceIds
-    type: string
+    type: object
     values:
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-internal
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes
     - /subscriptions/<obfuscated>/resourceGroups/<obfuscated>/providers/Microsoft.Network/loadBalancers/kubernetes-deploy
   - name: environments
-    type: string
+    type: object
     values: 
     - prod1
     - prod2
@@ -23,11 +23,8 @@ parameters:
 jobs:
  
 - ${{ each resourceId in parameters.resourceIds }}:
-
   - ${{ each env in split(parameters.environments, ',')}}:
-
-    - job: ${{ replace(split(resourceId, '/')[8], '-', '_') }}_${{ env }}
-      
+    - job: ${{ replace(split(resourceId, '/')[8], '-', '_') }}_${{ env }} 
       steps:  
             - script: echo "Output"
 
