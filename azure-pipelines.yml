@@ -35,9 +35,9 @@ jobs:
   #     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
 - job: Deploy
-  dependsOn: buildandtest
+  dependsOn: Build
   pool: 
-    vmImage: ubuntu-latest  
+    vmImage: windows-latest  
   
   steps:
   - task: DownloadPipelineArtifact@2
