@@ -1,54 +1,75 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - master
 
-variables:
-  buildConfiguration: 'Release'
+stages:
+- stage: 'Build'
+  displayName: 'Build the web application'
+  jobs: 
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-20.04'
+      demands:
+      - npm
 
-jobs:
-- job: Build
-  pool:
-    vmImage: windows-latest
-  steps:
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: publish
-      publishWebProjects: True
-      arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-      zipAfterPublish: True
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)' 
-      artifactName: drop
-  # - task: AzureWebApp@1
-  #   inputs:
-  #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
-  #     appType: 'webAppLinux'
-  #     appName: 'oct27my-app-dotnet'
-  #     deployToSlotOrASE: true
-  #     resourceGroupName: 'oct27-myapp-rg'
-  #     slotName: 'staging'
-  #     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    variables:
+      wwwrootDir: 'wwwroot'
+      dotnetSdkVersion: '6.x'
 
-- job: Deploy
-  dependsOn: Build
-  pool: 
-    vmImage: windows-latest  
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+      inputs:
+        version: '$(dotnetSdkVersion)'
+
+
+
+# trigger:
+# - master
+
+# variables:
+#   buildConfiguration: 'Release'
+
+# jobs:
+# - job: Build
+#   pool:
+#     vmImage: windows-latest
+#   steps:
+#   - task: DotNetCoreCLI@2
+#     inputs:
+#       command: publish
+#       publishWebProjects: True
+#       arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+#       zipAfterPublish: True
+#   - task: PublishPipelineArtifact@1
+#     inputs:
+#       targetPath: '$(Build.ArtifactStagingDirectory)' 
+#       artifactName: drop
+#   # - task: AzureWebApp@1
+#   #   inputs:
+#   #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
+#   #     appType: 'webAppLinux'
+#   #     appName: 'oct27my-app-dotnet'
+#   #     deployToSlotOrASE: true
+#   #     resourceGroupName: 'oct27-myapp-rg'
+#   #     slotName: 'staging'
+#   #     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+
+# - job: Deploy
+#   dependsOn: Build
+#   pool: 
+#     vmImage: windows-latest  
   
-  steps:
-  - task: DownloadPipelineArtifact@2
-    inputs:
-      buildType: 'current'
-      artifactName: 'drop'
-      targetPath: '$(Pipeline.Workspace)'
-  # - task: AzureWebApp@1
-  #   inputs:
-  #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
-  #     appType: 'webAppLinux'
-  #     appName: 'oct27my-app-dotnet'
-  #     resourceGroupName: 'oct27-myapp-rg'
-  #     package: '$(Pipeline.Workspace)/**/*.zip'
+#   steps:
+#   - task: DownloadPipelineArtifact@2
+#     inputs:
+#       buildType: 'current'
+#       artifactName: 'drop'
+#       targetPath: '$(Pipeline.Workspace)'
+#   # - task: AzureWebApp@1
+#   #   inputs:
+#   #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
+#   #     appType: 'webAppLinux'
+#   #     appName: 'oct27my-app-dotnet'
+#   #     resourceGroupName: 'oct27-myapp-rg'
+#   #     package: '$(Pipeline.Workspace)/**/*.zip'
