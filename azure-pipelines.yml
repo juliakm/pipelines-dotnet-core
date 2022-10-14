@@ -3,53 +3,52 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-parameters:
-  - name: resourceIds
-    type: object
-    default:
-    - /subscriptions/mysubscription/resourceGroups/myResourceGroup/providers/Microsoft.Network/loadBalancers/kubernetes-internal
-    - /subscriptions/mysubscription02/resourceGroups/myResourceGroup02/providers/Microsoft.Network/loadBalancers/kubernetes
-  - name: environments
-    type: object
-    default: 
-    - prod1
-    - prod2
-
 trigger:
 - master
 
-steps:
-- ${{ each env in parameters.environments }}:
+variables:
+  buildConfiguration: 'Release'
 
-  - ${{ each resourceId in parameters.resourceIds }}:
-      - script: echo ${{ replace(split(resourceId, '/')[8], '-', '_') }}_${{ env }}
+jobs:
+- job: Build
+  pool:
+    vmImage: windows-latest
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: publish
+      publishWebProjects: True
+      arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      zipAfterPublish: True
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)' 
+      artifactName: drop
+  # - task: AzureWebApp@1
+  #   inputs:
+  #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
+  #     appType: 'webAppLinux'
+  #     appName: 'oct27my-app-dotnet'
+  #     deployToSlotOrASE: true
+  #     resourceGroupName: 'oct27-myapp-rg'
+  #     slotName: 'staging'
+  #     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
-# trigger:
-# - master
-
-# pool:
-#   vmImage: ubuntu-latest
-
-# jobs:
-# - job: 'Test'
-#   pool:
-#     vmImage: 'ubuntu-latest' # other options: 'macOS-latest', 'windows-latest'
-#   strategy:
-#     matrix:
-#       Python38:
-#         python.version: '3.8'
-#       Python39:
-#         python.version: '3.9'
-#       Python310:
-#         python.version: '3.10'
-
-#   steps:
-#   - task: UsePythonVersion@0
-#     inputs:
-#       versionSpec: '$(python.version)'
-# variables:
-#   buildConfiguration: 'Release'
-
-# steps:
-# - script: dotnet build --configuration $(buildConfiguration)
-#   displayName: 'dotnet build $(buildConfiguration)'
+- job: Deploy
+  dependsOn: buildandtest
+  pool: 
+    vmImage: ubuntu-latest  
+  
+  steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      buildType: 'current'
+      artifactName: 'drop'
+      targetPath: '$(Pipeline.Workspace)'
+  # - task: AzureWebApp@1
+  #   inputs:
+  #     azureSubscription: 'DevOps Pipelines - ARM Horizontal Work(82c135d4-f813-4bec-a93e-60e4323918ee)'
+  #     appType: 'webAppLinux'
+  #     appName: 'oct27my-app-dotnet'
+  #     resourceGroupName: 'oct27-myapp-rg'
+  #     package: '$(Pipeline.Workspace)/**/*.zip'
