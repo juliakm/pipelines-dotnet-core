@@ -15,7 +15,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - name: Azure Pipelines Action
-          uses: juliakm/pipelines@v1
+          uses: juliakm/pipelines@master
           with:
             azure-devops-project-url: https://dev.azure.com/jukullam/learning
             azure-pipeline-name: 'juliakm.pipelines-dotnet-core (1)'
