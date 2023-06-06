@@ -9,17 +9,19 @@ env:
   AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/jukullam/nuget-artifact/_packaging/Fabrikam_FeedThree/nuget/v3/index.json    
   BUILD_CONFIGURATION: 'Release'    # set this to the appropriate build configuration
   DOTNET_VERSION: '6.0' 
+  NuGetDirectory: ${{ github.workspace}}/nuget
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -30,16 +32,33 @@ jobs:
           dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
           dotnet test --configuration '${{ env.BUILD_CONFIGURATION }}'
 
+    # Create the NuGet package in the folder from the environment variable NuGetDirectory
+      - run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
+
+    # Publish the NuGet package as an artifact, so they can be used in the following jobs
+      - uses: actions/upload-artifact@v3
+        with:
+          name: nuget
+          if-no-files-found: error
+          retention-days: 7
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+
   az-artifacts-build-and-deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      # Download the NuGet package created in the previous job
+      - uses: actions/download-artifact@v3
+        with:
+          name: nuget
+          path: ${{ env.NuGetDirectory }}
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           source-url: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
@@ -55,4 +74,4 @@ jobs:
 
       # Publish the package to Azure Artifacts
       - name: 'dotnet publish'
-        run: dotnet nuget push --api-key AzureArtifacts bin/Release/*.nupkg
+        run: dotnet nuget push --api-key AzureArtifacts ${{ env.NuGetDirectory }}/*.nupkg
