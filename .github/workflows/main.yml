@@ -1,19 +1,58 @@
-name: CI
+name: Push a NuGet package to Azure Artifacts or GitHub Package Registry
 
-# Run this workflow every time a commit gets pushed to main or a pull request gets opened against main
 on:
   push:
     branches:
-      - master
+      - main
+
+env:
+  AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/jukullam/nuget-artifact/_packaging/Fabrikam_FeedThree/nuget/v3/index.json    
+  BUILD_CONFIGURATION: 'Release'    # set this to the appropriate build configuration
+  DOTNET_VERSION: '6.x' 
 
 jobs:
-    build:
-        name: Call Azure Pipeline
-        runs-on: ubuntu-latest
-        steps:
-        - name: Azure Pipelines Action
-          uses: juliakm/pipelines@master
-          with:
-            azure-devops-project-url: https://dev.azure.com/jukullam/learning
-            azure-pipeline-name: 'juliakm.pipelines-dotnet-core (1)'
-            azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - uses: actions/checkout@v2
+
+      # Setup .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Run dotnet build and package
+      - name: dotnet build and test
+        run: |
+          dotnet restore
+          dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
+          dotnet test --configuration '${{ env.BUILD_CONFIGURATION }}'
+
+  az-artifacts-build-and-deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - uses: actions/checkout@v2
+
+      # Setup .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          source-url: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }} 
+
+      # Run dotnet build and package
+      - name: dotnet build and publish
+        run: |
+          dotnet restore
+          dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
+          dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
+
+      # Publish the package to Azure Artifacts
+      - name: 'dotnet publish'
+        run: dotnet nuget push --api-key AzureArtifacts bin/Release/*.nupkg
