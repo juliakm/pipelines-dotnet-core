@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
+  contents: read # Require read permission to access the repository contents.
+
 env:
   AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/jukullam/nuget-artifact/_packaging/Fabrikam_FeedThree/nuget/v3/index.json    
   BUILD_CONFIGURATION: 'Release'    # set this to the appropriate build configuration
@@ -17,7 +21,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Azure CLI Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          managed-identity: true
 
       # Setup .NET Core SDK
       - name: Setup .NET Core
@@ -62,8 +76,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           source-url: ${{ env.AZURE_ARTIFACTS_FEED_URL }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }} 
 
       # Run dotnet build and package
       - name: dotnet build and publish
