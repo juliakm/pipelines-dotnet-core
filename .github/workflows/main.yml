@@ -103,7 +103,7 @@ jobs:
       - name: 'dotnet publish'
         env:
           NUGET_CREDENTIALPROVIDER_MSAL_ENABLED: true
-        run: dotnet nuget push --username "optional" --password "accesstoken" ${{ env.NuGetDirectory }}/*.nupkg
+        run: dotnet nuget push --api-key "optional" ${{ env.NuGetDirectory }}/*.nupkg
 
       # - name: Push NuGet package to Azure Artifacts
       #   env:
