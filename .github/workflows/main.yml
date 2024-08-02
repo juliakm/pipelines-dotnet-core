@@ -87,6 +87,11 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      # Install credential provider for Azure Artifacts
+      - name: Install credential provider for Azure Artifacts
+        run: sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"
+
+
       # Run dotnet build and package
       - name: dotnet build and publish
         run: |
@@ -95,12 +100,12 @@ jobs:
           dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
 
       # Publish the package to Azure Artifacts
-      # - name: 'dotnet publish'
-      #   run: dotnet nuget push --api-key AzureArtifacts ${{ env.NuGetDirectory }}/*.nupkg
+      - name: 'dotnet publish'
+        run: dotnet nuget push --api-key AzureArtifacts ${{ env.NuGetDirectory }}/*.nupkg
 
-      - name: Push NuGet package to Azure Artifacts
-        env:
-          AZURE_ARTIFACTS_FEED_URL: ${{ secrets.AZURE_ARTIFACTS_FEED_URL }}
-        run: |
-          VERSION="1.0.0-${{ github.run_id }}"
-          az artifacts universal publish --organization https://dev.azure.com/jukullam --project="nuget-artifact" --scope project --feed  "Fabrikam_FeedThree" --name nuget --version $VERSION --path ${{ env.NuGetDirectory }}/*.nupkg
+      # - name: Push NuGet package to Azure Artifacts
+      #   env:
+      #     AZURE_ARTIFACTS_FEED_URL: ${{ secrets.AZURE_ARTIFACTS_FEED_URL }}
+      #   run: |
+      #     VERSION="1.0.0-${{ github.run_id }}"
+      #     az artifacts universal publish --organization https://dev.azure.com/jukullam --project="nuget-artifact" --scope project --feed  "Fabrikam_FeedThree" --name nuget --version $VERSION --path ${{ env.NuGetDirectory }}/*.nupkg
