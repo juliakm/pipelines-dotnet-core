@@ -102,7 +102,7 @@ jobs:
       # Publish the package to Azure Artifacts
       - name: 'dotnet publish'
         env:
-          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint": $AZURE_ARTIFACTS_FEED_URL, "username": "optional", "password": "${{ secrets.DEVOPS }}"}]}'
+          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint": ${{ env.AZURE_ARTIFACTS_FEED_URL }}, "username": "optional", "password": "${{ secrets.DEVOPS }}"}]}'
         run: dotnet nuget push --api-key "pass" ${{ env.NuGetDirectory }}/*.nupkg
 
 
