@@ -108,11 +108,14 @@ jobs:
           dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
           dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
 
+      # Verify the package version
+      - name: Verify package version
+        run: |
+          PACKAGE_VERSION=$(dotnet list package --include-transitive | grep -oP '(?<=Version: ).*')
+          echo "Package version: $PACKAGE_VERSION"
+          
       # Publish the package to Azure Artifacts
       - name: 'dotnet publish'
-        # env:
-        #   VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint": ${{ env.AZURE_ARTIFACTS_FEED_URL }}, "username": "optional", "password": "${{ env.ACCESS_TOKEN }}"}]}'
-       # run: echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
         run: dotnet nuget push ${{ env.NuGetDirectory }}/*.nupkg --api-key AzureDevOps --source ${{ env.AZURE_ARTIFACTS_FEED_URL }}
 
 
