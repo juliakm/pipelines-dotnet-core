@@ -106,7 +106,9 @@ jobs:
         run: |
           dotnet restore
           dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
-          dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
+          dotnet pack --configuration '${{ env.BUILD_CONFIGURATION }}' --output ./nupkg --version-suffix ${{ github.run_id }}
+          echo "${{ github.run_id }}"
+
 
       # Verify the package version
       - name: Verify package version
