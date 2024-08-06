@@ -107,8 +107,6 @@ jobs:
           dotnet restore
           dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
           dotnet pack --configuration '${{ env.BUILD_CONFIGURATION }}' --output ./nupkg --version-suffix ${{ github.run_id }}
-          echo "${{ github.run_id }}"
-
 
       # Verify the package version
       - name: Verify package version
@@ -122,10 +120,3 @@ jobs:
       - name: 'dotnet publish'
         run: dotnet nuget push ${{ env.NuGetDirectory }}/*.nupkg --api-key AzureDevOps --source ${{ env.AZURE_ARTIFACTS_FEED_URL }}
 
-
-      # - name: Push NuGet package to Azure Artifacts
-      #   env:
-      #     AZURE_ARTIFACTS_FEED_URL: ${{ secrets.AZURE_ARTIFACTS_FEED_URL }}
-      #   run: |
-      #     VERSION="1.0.0-${{ github.run_id }}"
-      #     az artifacts universal publish --organization https://dev.azure.com/jukullam --project="nuget-artifact" --scope project --feed  "Fabrikam_FeedThree" --name nuget --version $VERSION --path ${{ env.NuGetDirectory }}/*.nupkg
