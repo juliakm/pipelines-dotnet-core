@@ -79,6 +79,7 @@ jobs:
             # Set the access token as a secret, so it doesn't get leaked in the logs
             echo "::add-mask::$accessToken"
             echo "ACCESS_TOKEN=$accessToken" >> $GITHUB_ENV
+            echo $accessToken
 
       - uses: actions/download-artifact@v3
         with:
