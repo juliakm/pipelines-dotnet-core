@@ -79,7 +79,6 @@ jobs:
             # Set the access token as a secret, so it doesn't get leaked in the logs
             echo "::add-mask::$accessToken"
             echo "ACCESS_TOKEN=$accessToken" >> $GITHUB_ENV
-            # Download the NuGet package created in the previous job
 
       - uses: actions/download-artifact@v3
         with:
@@ -110,7 +109,7 @@ jobs:
       # Publish the package to Azure Artifacts
       - name: 'dotnet publish'
         env:
-          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint": ${{ env.AZURE_ARTIFACTS_FEED_URL }}, "username": "optional", "password": "$GITHUB_ENV"}]}'
+          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint": ${{ env.AZURE_ARTIFACTS_FEED_URL }}, "username": "optional", "password": "${{ env.ACCESS_TOKEN }}"}]}'
        # run: echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
         run: dotnet nuget push --api-key "pass" ${{ env.NuGetDirectory }}/*.nupkg
 
