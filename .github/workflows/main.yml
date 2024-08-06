@@ -111,7 +111,9 @@ jobs:
       # Verify the package version
       - name: Verify package version
         run: |
-          PACKAGE_VERSION=$(dotnet list package --include-transitive | grep -oP '(?<=Version: ).*')
+          PACKAGE_FILE=$(ls ${{ env.NuGetDirectory }}/*.nupkg)
+          echo "Package file: $PACKAGE_FILE"
+          PACKAGE_VERSION=$(unzip -p $PACKAGE_FILE *.nuspec | grep -oP '(?<=<version>).*?(?=</version>)')
           echo "Package version: $PACKAGE_VERSION"
           
       # Publish the package to Azure Artifacts
